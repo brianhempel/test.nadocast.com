@@ -20,7 +20,8 @@
 <body>
   <div style="position:fixed; top:0; width: 100%; z-index: 1; background: white; border-bottom: solid 3px black; padding: 0.5em">
     <h1>Nadocast "2022 Models" compared to SPC Outlooks, Objective Plots</h1>
-    <p>(Subjective maps <a href="index.html">here</a>.) Dates used are not in the training data. Only regions that produce >=1 tor and wind and hail report over 1998-2013 (view this mask <a href="https://github.com/brianhempel/nadocast/blob/293f8f2a33b4f4e53e98e39c108c8e05f036874b/climatological_background_1998-2013/verifiable_area_mask.pdf">here</a>) and are in the CONUS are used for verification.</p>
+    <p>(Subjective maps <a href="index.html">here</a>.) Dates used are not in the training data. Only regions that produce >=1 tor and wind and hail report over 1998-2013 (view this mask <a href="https://github.com/brianhempel/nadocast/blob/293f8f2a33b4f4e53e98e39c108c8e05f036874b/climatological_background_1998-2013/verifiable_area_mask.pdf">here</a>) and are in the CONUS are used for verification.
+    "2022" models are trained on data through May 2022; "2021" models through Dec 2021. "2021" models were used for the 2022 SFE and are used by current realtime Nadocast (as of 2022-10-13).</p>
     <p class="options">
       <span>Plot:
       <label><input type="checkbox" name="kind" value="performance">Performance</label>
@@ -149,7 +150,7 @@
     </script>
   </div>
   
-  <div style="margin: 12em 0.5em" data-kind-name="performance">
+  <div style="margin: 14em 0.5em" data-kind-name="performance">
     <p class="desc">
       <strong>Performance diagrams</strong> for Nadocast (NC) day 1 outlooks (triangles) compared to SPC day 1 outlooks (circles), for the 155 days (Sundays) not seen by the models during training and calibration throughout the Jan 2019-May 2021 period.
       Lines of constant critical success index (CSI) are drawn as light gray curves.
@@ -184,7 +185,7 @@
       </tr>
     </table>
   </div>
-  <div style="margin: 12em 0.5em" data-kind-name="reliability">
+  <div style="margin: 14em 0.5em" data-kind-name="reliability">
     <p class="desc">
       <strong>Reliability diagrams</strong> for Nadocast (NC) day 1 outlooks (triangles) compared to SPC day 1 outlooks (circles), for the 155 days (Sundays) not seen by the models during training and calibration throughout the Jan 2019-May 2021 period.
       The plots compare the forecast probability of an event to the observed frequency of at least one report within 25 miles.
@@ -238,7 +239,7 @@
       </tr>
     </table>
   </div>
-  <div style="margin: 12em 0.5em" data-kind-name="roc">
+  <div style="margin: 14em 0.5em" data-kind-name="roc">
     <p class="desc">
       <strong>Receiver operator characteristic (ROC) curves</strong> for Nadocast (NC) day 1 outlooks (triangles) compared to SPC day 1 outlooks (circles), for the 155 days (Sundays) not seen by the models during training and calibration throughout the Jan 2019-May 2021 period.
       Area under the curve (AUC) is shown. For rare events (as here), AUC is dominated by POD at the lowest threshold.
