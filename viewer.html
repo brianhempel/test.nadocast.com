@@ -1,0 +1,138 @@
+<html>
+
+<head>
+  <title>Nadocast Viewer</title>
+  <style>
+    .hidden { display: none }
+    label { cursor: pointer }
+    .options > span { display: inline-block; margin-right: 1em; }
+    img { width: 582px; }
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+  <div>
+    <h1>Nadocast Viewer</h1>
+    <p class="options">
+      <span>
+      <button id="prev">← Prev</button>
+      Date:
+      <input type="text" name="date">
+      <button id="next">Next →</button>
+      </span>
+      <br>
+      <span>Hazard:
+      <label><input type="radio" name="hazard" value="tornado" checked>Tor</label>
+      <label><input type="radio" name="hazard" value="wind">Wind</label>
+      <label><input type="radio" name="hazard" value="wind_adj">Wind Adj</label>
+      <label><input type="radio" name="hazard" value="hail">Hail</label>
+      <label><input type="radio" name="hazard" value="sig_tornado">Sig Tor</label>
+      <label><input type="radio" name="hazard" value="sig_wind">Sig Wind</label>
+      <label><input type="radio" name="hazard" value="sig_wind_adj">Sig Wind Adj</label>
+      <label><input type="radio" name="hazard" value="sig_hail">Sig Hail</label>
+      </span>
+      <span>Version:
+        <label><input type="radio" name="version" value="" checked>"2021"</label>
+        <label><input type="radio" name="version" value="2022_models_">"2022"</label>
+      </span>
+      <span>Time:
+      <label><input type="radio" name="run_time" value="00,f12-35,1200" checked>0Z</label>
+      <label><input type="radio" name="run_time" value="12,f02-23,1630">12Z</label>
+      </span>
+      <span>Calibration:
+      <label><input type="radio" name="calibration" value="" checked>SPC-like</label>
+      <label><input type="radio" name="calibration" value="abs_calib_">Absolute</label>
+      </span>
+    </p>
+    <script>
+      const oneHour = 1000*60*60;
+      const oneDay  = 24*oneHour;
+      function checkedElems(name) {
+        return Array.from(document.querySelectorAll('input[name="' + name + '"]')).filter(checkbox => checkbox.checked);
+      }
+      function update() {
+        let yyyymmdd = document.querySelector('input[name="date"]').value;
+        if (yyyymmdd.length !== 8) {
+          yyyymmdd = (new Date(new Date() - 3*oneHour)).toISOString().substr(0,10).replaceAll("-","");
+          document.querySelector('input[name="date"]').value = yyyymmdd;
+        }
+        let yyyy   = yyyymmdd.substr(0,4)
+        let yy     = yyyymmdd.substr(2,2)
+        let mm     = yyyymmdd.substr(4,2)
+        let dd     = yyyymmdd.substr(6,2)
+
+        let [hh, fnn_nn, tttt] = checkedElems("run_time")[0].value.split(",")
+        let thhz = "t" + hh + "z";
+        let thz  = "t" + parseInt(hh) + "z";
+
+        let version = checkedElems("version")[0].value;
+
+        let calibration = checkedElems("calibration")[0].value;
+
+        function apply_template(template) {
+          return template.replaceAll("YYYY", yyyy).replaceAll("YY", yy).replaceAll("MM", mm).replaceAll("DD", dd).replaceAll("TTTT", tttt).replaceAll("tHHz", thhz).replaceAll("tHz", thz).replaceAll("FNN-NN", fnn_nn).replaceAll("VERSION", version).replaceAll("CALIBRATION", calibration);
+        }
+
+        document.querySelectorAll('img[data-template]').forEach(img => {
+          img.src = apply_template(img.dataset.template);
+          // console.log(img.src);
+        });
+        document.querySelectorAll('td a').forEach(a => {
+          a.href = apply_template(a.dataset.template);
+        });
+
+        const thingsToShow = checkedElems("hazard").map(checkbox => checkbox.value);
+        // console.log(thingsToShow);
+        document.querySelectorAll('[data-hazards]').forEach(elem => {
+          let elemHazards = elem.dataset.hazards.split(",")
+          if( thingsToShow.length === 0 || elemHazards.some(hazard => thingsToShow.includes(hazard))) {
+            elem.classList.remove("hidden")
+          } else {
+            elem.classList.add("hidden")
+          }
+        });
+      }
+      document.querySelectorAll('input').forEach(elem => {
+        elem.onchange = update;
+      })
+      document.querySelectorAll('label').forEach(elem => {
+        elem.onmouseover = () => elem.querySelector('input').click();
+      })
+      document.querySelector('#prev').onclick = event => {
+        let yyyymmdd = document.querySelector('input[name="date"]').value;
+        let millis_utc = Date.UTC(parseInt(yyyymmdd.substr(0,4)),parseInt(yyyymmdd.substr(4,2)) - 1,parseInt(yyyymmdd.substr(6,2)));
+        let new_yyyymmdd = (new Date(millis_utc - oneDay)).toISOString().substr(0,10).replaceAll("-","");
+        document.querySelector('input[name="date"]').value = new_yyyymmdd;
+        update();
+      };
+      document.querySelector('#next').onclick = event => {
+        let yyyymmdd = document.querySelector('input[name="date"]').value;
+        let millis_utc = Date.UTC(parseInt(yyyymmdd.substr(0,4)),parseInt(yyyymmdd.substr(4,2)) - 1,parseInt(yyyymmdd.substr(6,2)));
+        let new_yyyymmdd = (new Date(millis_utc + oneDay)).toISOString().substr(0,10).replaceAll("-","");
+        document.querySelector('input[name="date"]').value = new_yyyymmdd;
+        update();
+      };
+    </script>
+  </div>
+  <div>
+    <a data-hazards="tornado"      data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_tornado_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"><img      data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_tornado_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"></a>
+    <a data-hazards="wind"         data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_wind_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"><img         data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_wind_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"></a>
+    <a data-hazards="wind_adj"     data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_wind_adj_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"><img     data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_wind_adj_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"></a>
+    <a data-hazards="hail"         data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_hail_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"><img         data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_hail_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"></a>
+    <a data-hazards="sig_tornado"  data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_sig_tornado_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"><img  data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_sig_tornado_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"></a>
+    <a data-hazards="sig_wind"     data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_sig_wind_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"><img     data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_sig_wind_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"></a>
+    <a data-hazards="sig_wind_adj" data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_sig_wind_adj_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"><img data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_sig_wind_adj_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"></a>
+    <a data-hazards="sig_hail"     data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_sig_hail_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"><img     data-template="http://data.nadocast.com/YYYYMM/YYYYMMDD/tHz/nadocast_VERSIONconus_sig_hail_CALIBRATIONYYYYMMDD_tHHz_FNN-NN.png"></a>
+
+    <img data-hazards="tornado,sig_tornado"                 data-template="https://www.spc.noaa.gov/products/outlook/archive/YYYY/day1probotlk_YYYYMMDD_TTTT_torn_prt.gif">
+    <img data-hazards="wind,wind_adj,sig_wind,sig_wind_adj" data-template="https://www.spc.noaa.gov/products/outlook/archive/YYYY/day1probotlk_YYYYMMDD_TTTT_wind_prt.gif">
+    <img data-hazards="hail,sig_hail"                       data-template="https://www.spc.noaa.gov/products/outlook/archive/YYYY/day1probotlk_YYYYMMDD_TTTT_hail_prt.gif">
+    <img data-template="https://www.spc.noaa.gov/climo/reports/YYMMDD_rpts.gif">
+  </div>
+  <script>
+    update();
+  </script>
+</body>
+
+</html>
